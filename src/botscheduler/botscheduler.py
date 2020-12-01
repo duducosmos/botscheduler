@@ -52,16 +52,16 @@ class Bot:
         self.logger = logging.getLogger()
         _format = "%(asctime)-15s %(message)s"
         loggin_name = "/bot_{0}.log".format(datetime.now().strftime(
-            "%Y%m%dT%H:%M:%S"))
-        logging.basicConfig(filename=LOGSPATH
-                            + loggin_name,
+            "%Y%m%dT%H%M%S"))
+        logging.basicConfig(filename=f'{LOGSPATH}{loggin_name}',
                             level=logging.DEBUG,
-                            format=_format)
+                            format=_format
+                            )
 
         urllib3_log = logging.getLogger("urllib3")
         urllib3_log.setLevel(logging.CRITICAL)
 
-        self._print("The Slicer Bot is Starting.")
+        self._print("The Scheduler is Starting.")
 
         self._scheduler = sched.scheduler(timefunc=time.time,
                                           delayfunc=time.sleep)

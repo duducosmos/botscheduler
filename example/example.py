@@ -1,10 +1,3 @@
-# BotScheduler
-
-A class used to simplify the scheduder of complex function.
-
-## Usage:
-
-```python 
 from botscheduler import Bot
 
 def pipeline():
@@ -19,5 +12,3 @@ start_minutes = 30
 bot = Bot(logspath, cachdir, deltatime=deltatime)
 bot.operations = pipeline
 bot.run(start_hour, start_minutes)
-
-```
