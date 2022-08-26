@@ -68,6 +68,7 @@ class Bot:
 
         self._next_time = None
         self._operationfunc = None
+        self._sched_event = None
 
     def _print(self, msg):
         self.logger.info(msg)
@@ -109,10 +110,11 @@ class Bot:
         if delta_time.total_seconds() < 0:
             self._next_time = current_time + timedelta(minutes=self._deltatime)
 
-        self._scheduler.enterabs(time.mktime(self._next_time.timetuple()),
-                                 priority=0,
-                                 action=self._rescheduler,
-                                 argument=())
+        self.cancel()
+        self._sched_event = self._scheduler.enterabs(time.mktime(self._next_time.timetuple()),
+                                                     priority=0,
+                                                     action=self._rescheduler,
+                                                     argument=())
 
     def _set_time(self):
         """Set the start time to process.
@@ -131,12 +133,22 @@ class Bot:
             self._next_time)
 
         self._print(info)
-        self._scheduler.enterabs(time.mktime(next_time.timetuple()),
-                                 priority=0,
-                                 action=self._rescheduler,
-                                 argument=())
+        self.cancel()
+        self._sched_event = self._scheduler.enterabs(time.mktime(next_time.timetuple()),
+                                                     priority=0,
+                                                     action=self._rescheduler,
+                                                     argument=())
 
-    def run(self, hours, minutes):
+    def cancel(self):
+        """Cancel the scheduler"""
+        if self._sched_event is not None:
+            try:
+                self._scheduler.cancel(self._sched_event)
+            except:
+                pass
+            self._sched_event = None
+
+    def run(self, hours, minutes, blocking=True):
         """Start the scheduler.
         Start the scheduler to run the Transfer in autonomous mode.
 
@@ -151,7 +163,7 @@ class Bot:
 
         self._set_time()
         try:
-            self._scheduler.run()
+            self._scheduler.run(blocking=blocking)
         except KeyboardInterrupt:
             self._print("Stopping the Bot.")
 
@@ -170,6 +182,14 @@ class Bot:
     @property
     def minutes(self):
         return self._minutes
+
+    @property
+    def deltatime(self):
+        return self._deltatime
+
+    @deltatime.setter
+    def deltatime(self, dtime):
+        self._deltatime = dtime
 
     @hours.setter
     def hours(self, h):
